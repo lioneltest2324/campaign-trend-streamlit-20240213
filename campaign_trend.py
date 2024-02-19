@@ -204,9 +204,9 @@ if len(campaign_options) > 0:
     for singe_campaign_option in campaign_options:
         merge_df = output_combine_df(selected_range,[singe_campaign_option],ads_df,sensor_df,change_ads_df)
         summary_df = output_summary_df(selected_range, [singe_campaign_option], ads_df, sensor_df)
-        summary_df[['CTR']] = summary_df['CTR'].apply(lambda x: f'{x:.2%}')
-        summary_df[['神策加购率']] = summary_df['神策加购率'].apply(lambda x: f'{x:.2%}')
-        summary_df[['神策转化率']] = summary_df['神策转化率'].apply(lambda x: f'{x:.2%}')
+        # summary_df[['CTR']] = summary_df['CTR'].apply(lambda x: f'{x:.2%}')
+        # summary_df[['神策加购率']] = summary_df['神策加购率'].apply(lambda x: f'{x:.2%}')
+        # summary_df[['神策转化率']] = summary_df['神策转化率'].apply(lambda x: f'{x:.2%}')
         combine_chart  = output_trend_df(merge_df,left_options,right_options,singe_campaign_option)
         st.altair_chart(combine_chart,use_container_width=600)
         st.dataframe(summary_df,width=1200,height=100)
