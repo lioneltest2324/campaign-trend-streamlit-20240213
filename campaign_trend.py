@@ -180,6 +180,22 @@ def output_trend_df(df, left_options, right_options,singe_campaign_option):
     ).interactive()
     return combine_chart
 
+ads_url = 'https://docs.google.com/spreadsheets/d/1K__Mzx-lwk7USJXMj_MdvGmO2ud_3MIJpQAZ7IAkfzU/edit#gid=0'
+raw_bidding_data = load_and_process_data(ads_url,1433014523)
+raw_bidding_data['pmax_troas'] =raw_bidding_data['pmax_troas'].fillna(0)
+raw_bidding_data['troas'] =raw_bidding_data['troas'].fillna(0)
+raw_bidding_data.loc[(raw_bidding_data['status'].str.contains('PAUSED')),'strategy'] = '广告已关停'
+raw_bidding_data.loc[(raw_bidding_data['status'].str.contains('ENABLED'))&(raw_bidding_data['bidding_strategy'].str.contains('MAXIMIZE_CONVERSION_VALUE')) & (raw_bidding_data['pmax_troas']==0), 'strategy'] = 'MAXIMIZE_VALUE'
+raw_bidding_data.loc[(raw_bidding_data['status'].str.contains('ENABLED'))&(raw_bidding_data['bidding_strategy'].str.contains('MAXIMIZE_CONVERSION_VALUE')) & (raw_bidding_data['pmax_troas']!=0), 'strategy'] = \
+    "Troas: " + (raw_bidding_data['pmax_troas'] * 100).astype(int).astype(str)+ "%"
+raw_bidding_data.loc[(raw_bidding_data['status'].str.contains('ENABLED'))&(raw_bidding_data['bidding_strategy'].str.contains('TARGET_ROAS')) & (raw_bidding_data['troas']==0), 'strategy'] = 'MAXIMIZE_VALUE'
+raw_bidding_data.loc[(raw_bidding_data['status'].str.contains('ENABLED'))&(raw_bidding_data['bidding_strategy'].str.contains('TARGET_ROAS')) & (raw_bidding_data['troas']!=0), 'strategy'] =\
+    "Troas: " + (raw_bidding_data['troas'] * 100).astype(int).astype(str) + "%"
+raw_bidding_data = raw_bidding_data.dropna(subset=['strategy'])
+raw_bidding_data = raw_bidding_data.drop(columns=['troas','pmax_troas','status'])
+raw_bidding_data = raw_bidding_data.rename(columns={'campaign name': 'campaign'})
+
+
 ads_df,sensor_df,change_ads_df = load_data()
 ads_df = process_hk_cost_and_value_on_ads_data(ads_df,'currency','cost','ads value','HKD')
 sensor_df = output_groupby_df(sensor_df, ['date','campaign'],
@@ -208,5 +224,9 @@ if len(campaign_options) > 0:
         # summary_df[['神策加购率']] = summary_df['神策加购率'].apply(lambda x: f'{x:.2%}')
         # summary_df[['神策转化率']] = summary_df['神策转化率'].apply(lambda x: f'{x:.2%}')
         combine_chart  = output_trend_df(merge_df,left_options,right_options,singe_campaign_option)
+        raw_bidding_data = raw_bidding_data[raw_bidding_data['campaign'].isin([singe_campaign_option])]
+        if len(raw_bidding_data.index.tolist())>0:
+            st.text(f"当前出价策略为{raw_bidding_data['bidding_strategy'].iloc[0]}")
+            st.text(f"出价值为{raw_bidding_data['strategy'].iloc[0]}")
         st.altair_chart(combine_chart,use_container_width=600)
         st.dataframe(summary_df,width=1200,height=100)
