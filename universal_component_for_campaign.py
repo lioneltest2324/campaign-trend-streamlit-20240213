@@ -70,7 +70,7 @@ def out_date_range_data(df,DATE_COLUMNS,DATE_RANGE_LABEL):
     default_end_date = datetime.today() - timedelta(days=7)
     selected_range = st.date_input(
         DATE_RANGE_LABEL,
-        [min_date,max_date]
+        [min_date,max_date],
         min_value=min_date,
         max_value=max_date
     )
