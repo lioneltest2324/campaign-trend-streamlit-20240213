@@ -224,7 +224,7 @@ if len(campaign_options) > 0:
         # summary_df[['神策加购率']] = summary_df['神策加购率'].apply(lambda x: f'{x:.2%}')
         # summary_df[['神策转化率']] = summary_df['神策转化率'].apply(lambda x: f'{x:.2%}')
         combine_chart  = output_trend_df(merge_df,left_options,right_options,singe_campaign_option)
-        st.dataframe(output_trend_df)
+        st.dataframe(combine_chart)
         raw_bidding_data = raw_bidding_data[raw_bidding_data['campaign'].isin([singe_campaign_option])]
         if len(raw_bidding_data.index.tolist())>0:
             st.text(f"当前出价策略为{raw_bidding_data['bidding_strategy'].iloc[0]}")
